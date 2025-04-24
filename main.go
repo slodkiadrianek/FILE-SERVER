@@ -23,24 +23,19 @@ func main() {
 	}
 
 	if uploadDir == "" {
-		// Set a default value if PORT is not set in the .env file
 		uploadDir = "./uploads"
 	}
-	// Ensure upload dir exists
 	if _, err := os.Stat(uploadDir); os.IsNotExist(err) {
 		os.Mkdir(uploadDir, os.ModePerm)
 	}
 
 	r := mux.NewRouter()
-	// Upload route
 	r.HandleFunc("/upload", uploadHandler).Methods("POST")
 
-	// Serve static files
 	r.PathPrefix("/uploads/").Handler(http.StripPrefix("/uploads/", http.FileServer(http.Dir(uploadDir))))
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		// Set a default value if PORT is not set in the .env file
 		port = "3000"
 	}
 	fmt.Println("Server running on http://localhost:" + port)
@@ -48,7 +43,7 @@ func main() {
 }
 
 func uploadHandler(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseMultipartForm(524288000) // max 500MB
+	err := r.ParseMultipartForm(524288000)
 	if err != nil {
 		http.Error(w, "Error parsing form", http.StatusBadRequest)
 		return
@@ -69,7 +64,6 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Sanitize filename
 		timestamp := time.Now().UnixNano()
 		safeName := strings.ReplaceAll(fileHeader.Filename, " ", "-")
 		newFilename := fmt.Sprintf("%d-%s", timestamp, safeName)
@@ -80,7 +74,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Error saving file", http.StatusInternalServerError)
 			return
 		}
-		defer dst.Close() // Close the destination file after use
+		defer dst.Close()
 
 		_, err = io.Copy(dst, file)
 		if err != nil {
@@ -90,7 +84,6 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 
 		url := fmt.Sprintf("%s://%s/uploads/%s", getScheme(r), r.Host, newFilename)
 		photoUrls = append(photoUrls, url)
-		// Close the uploaded file immediately after use
 		file.Close()
 	}
 
