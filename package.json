@@ -1,0 +1,45 @@
+{
+  "name": "file-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "npx  tsx  watch --env-file=.env  ./src/server.ts",
+    "start": "node --env-file=.env ./dist/server.js",
+    "build": "tsc "
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/slodkiadrianek/FILE-SERVER.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/slodkiadrianek/FILE-SERVER/issues"
+  },
+  "homepage": "https://github.com/slodkiadrianek/FILE-SERVER#readme",
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "helmet": "^8.0.0",
+    "multer": "^1.4.5-lts.2",
+    "redis": "^4.7.0",
+    "winston": "^3.17.0",
+    "winston-daily-rotate-file": "^5.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.20.0",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.13.4",
+    "@types/nodemailer": "^6.4.17",
+    "eslint": "^9.20.1",
+    "globals": "^15.15.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.24.0"
+  }
+}
