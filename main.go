@@ -30,6 +30,11 @@ func main() {
 	}
 
 	r := mux.NewRouter()
+<<<<<<< HEAD
+	r.Use(mux.CORSMethodMiddleware(r))
+	r.Use(corsMiddleware)
+=======
+>>>>>>> 66bfa466bb1142f18d19f81b8a01d7ad29fe7dc9
 	r.HandleFunc("/upload", uploadHandler).Methods("POST")
 
 	r.PathPrefix("/uploads/").Handler(http.StripPrefix("/uploads/", http.FileServer(http.Dir(uploadDir))))
@@ -40,6 +45,21 @@ func main() {
 	}
 	fmt.Println("Server running on http://localhost:" + port)
 	log.Fatal(http.ListenAndServe(":"+port, r))
+}
+
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "http://192.168.0.113:8080")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+		// Handle preflight
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
 }
 
 func uploadHandler(w http.ResponseWriter, r *http.Request) {
