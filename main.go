@@ -30,11 +30,8 @@ func main() {
 	}
 
 	r := mux.NewRouter()
-<<<<<<< HEAD
 	r.Use(mux.CORSMethodMiddleware(r))
 	r.Use(corsMiddleware)
-=======
->>>>>>> 66bfa466bb1142f18d19f81b8a01d7ad29fe7dc9
 	r.HandleFunc("/upload", uploadHandler).Methods("POST")
 
 	r.PathPrefix("/uploads/").Handler(http.StripPrefix("/uploads/", http.FileServer(http.Dir(uploadDir))))
@@ -49,7 +46,7 @@ func main() {
 
 func corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "http://192.168.0.113:8080")
+		w.Header().Set("Access-Control-Allow-Origin", "http://192.168.184.53:8080")
 		w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
@@ -102,7 +99,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		url := fmt.Sprintf("%s://%s/uploads/%s", getScheme(r), r.Host, newFilename)
+		url := fmt.Sprintf("%s://192.168.184.53:3007/uploads/%s", getScheme(r), newFilename)
 		photoUrls = append(photoUrls, url)
 		file.Close()
 	}
