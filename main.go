@@ -2,14 +2,16 @@ package main
 
 import (
 	"fmt"
-	"github.com/joho/godotenv"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+	"syscall"
 	"time"
+
+	"github.com/joho/godotenv"
 
 	"github.com/gorilla/mux"
 )
@@ -33,6 +35,7 @@ func main() {
 	r.Use(mux.CORSMethodMiddleware(r))
 	r.Use(corsMiddleware)
 	r.HandleFunc("/upload", uploadHandler).Methods("POST")
+	r.HandleFunc("/health", freeDiskSpace).Methods("GET")
 
 	r.PathPrefix("/uploads/").Handler(http.StripPrefix("/uploads/", http.FileServer(http.Dir(uploadDir))))
 
@@ -46,7 +49,7 @@ func main() {
 
 func corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "http://192.168.184.53:8080")
+		w.Header().Set("Access-Control-Allow-Origin", "http://192.168.0.113:8080")
 		w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
@@ -57,6 +60,24 @@ func corsMiddleware(next http.Handler) http.Handler {
 		}
 		next.ServeHTTP(w, r)
 	})
+}
+
+func freeDiskSpace(w http.ResponseWriter, r *http.Request) {
+	var stat syscall.Statfs_t
+	path := "/" // or any path you want to check
+
+	err := syscall.Statfs(path, &stat)
+	if err != nil {
+		panic(err)
+	}
+
+	freeBytes := stat.Bavail * uint64(stat.Bsize)
+	freeGB := float64(freeBytes) / (1024 * 1024 * 1024)
+
+	fmt.Printf("Free space: %.2f GB\n", freeGB)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(fmt.Sprintf(`{"Free space": %.2f GB}`, freeGB)))
 }
 
 func uploadHandler(w http.ResponseWriter, r *http.Request) {
@@ -99,7 +120,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		url := fmt.Sprintf("%s://192.168.184.53:3007/uploads/%s", getScheme(r), newFilename)
+		url := fmt.Sprintf("%s://192.168.0.113:3007/uploads/%s", getScheme(r), newFilename)
 		photoUrls = append(photoUrls, url)
 		file.Close()
 	}
